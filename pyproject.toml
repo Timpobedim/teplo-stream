@@ -1,0 +1,53 @@
+[project]
+name = "teplo-stream"
+version = "1.0.0"
+description = "Потоковая мини-батч обработка телеметрии теплосети: очередь, окна, витрина, аварии"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.1",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+teplo = "teplo.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "ruff>=0.12",
+    "mypy>=1.17",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/teplo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "C4", "SIM", "PT", "RUF", "DTZ"]
+# RUF001-003: в русских строках есть кириллица, похожая на латиницу, — это нормально.
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+# S311: генератор телеметрии — имитация, а не криптография.
+"src/teplo/source.py" = ["S311"]
+"tests/**" = ["S101", "S311"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["teplo"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
